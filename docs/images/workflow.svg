@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 500" width="100%" height="100%">
+  <defs>
+    <style>
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: bold; fill: #0f172a; }
+      .actor-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 13px; font-weight: bold; fill: #1e293b; text-anchor: middle; }
+      .actor-sub { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #64748b; text-anchor: middle; }
+      .msg-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; fill: #334155; }
+      .msg-num { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; font-weight: bold; fill: #ffffff; text-anchor: middle; }
+      .note-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #0369a1; }
+    </style>
+    <marker id="seq-arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6" />
+    </marker>
+    <marker id="seq-ret" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#10b981" />
+    </marker>
+    <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+    </filter>
+  </defs>
+
+  <rect width="900" height="500" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+  <text x="35" y="40" class="title">Keycloak Integration Service - Interceptor &amp; Execution Workflow</text>
+
+  <!-- Lifeline Columns -->
+  <!-- Actor 1: Client -->
+  <line x1="120" y1="100" x2="120" y2="450" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
+  <rect x="45" y="60" width="150" height="40" rx="8" fill="#f8fafc" stroke="#cbd5e1" filter="url(#shadow)"/>
+  <text x="120" y="78" class="actor-title">Caller App</text>
+  <text x="120" y="92" class="actor-sub">REST Client / Portal</text>
+
+  <!-- Actor 2: Controller -->
+  <line x1="330" y1="100" x2="330" y2="450" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
+  <rect x="250" y="60" width="160" height="40" rx="8" fill="#f0fdf4" stroke="#86efac" filter="url(#shadow)"/>
+  <text x="330" y="78" class="actor-title" fill="#166534">Integration Service</text>
+  <text x="330" y="92" class="actor-sub">Controller &amp; Service</text>
+
+  <!-- Actor 3: Feign Interceptor -->
+  <line x1="560" y1="100" x2="560" y2="450" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
+  <rect x="475" y="60" width="170" height="40" rx="8" fill="#fef3c7" stroke="#fcd34d" filter="url(#shadow)"/>
+  <text x="560" y="78" class="actor-title" fill="#92400e">RequestInterceptor</text>
+  <text x="560" y="92" class="actor-sub">JWT Cache &amp; Refresh</text>
+
+  <!-- Actor 4: Keycloak Server -->
+  <line x1="780" y1="100" x2="780" y2="450" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4"/>
+  <rect x="700" y="60" width="160" height="40" rx="8" fill="#eff6ff" stroke="#93c5fd" filter="url(#shadow)"/>
+  <text x="780" y="78" class="actor-title" fill="#1d4ed8">Keycloak Server</text>
+  <text x="780" y="92" class="actor-sub">IAM / Admin REST API</text>
+
+  <!-- Message 1: Client -> Controller -->
+  <line x1="120" y1="130" x2="330" y2="130" stroke="#3b82f6" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <circle cx="135" cy="120" r="9" fill="#3b82f6"/>
+  <text x="135" y="124" class="msg-num">1</text>
+  <text x="150" y="124" class="msg-text">POST /admin/realms/{realm}/users (JSON)</text>
+
+  <!-- Message 2: Controller -> Interceptor -->
+  <line x1="330" y1="170" x2="560" y2="170" stroke="#3b82f6" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <circle cx="345" cy="160" r="9" fill="#3b82f6"/>
+  <text x="345" y="164" class="msg-num">2</text>
+  <text x="360" y="164" class="msg-text">Invoke Feign Client Method</text>
+
+  <!-- Note on Interceptor -->
+  <rect x="500" y="200" width="220" height="50" rx="6" fill="#e0f2fe" stroke="#7dd3fc"/>
+  <text x="510" y="220" class="note-text">Validate cached Bearer Token.</text>
+  <text x="510" y="236" class="note-text">If expired, call /openid-connect/token</text>
+
+  <!-- Message 3: Interceptor -> Keycloak Token -->
+  <line x1="560" y1="270" x2="780" y2="270" stroke="#3b82f6" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <circle cx="575" cy="260" r="9" fill="#3b82f6"/>
+  <text x="575" y="264" class="msg-num">3</text>
+  <text x="590" y="264" class="msg-text">POST /token (grant: client_credentials)</text>
+
+  <!-- Return 4: Token from Keycloak -->
+  <line x1="780" y1="300" x2="560" y2="300" stroke="#10b981" stroke-width="2" stroke-dasharray="3" marker-end="url(#seq-ret)"/>
+  <circle cx="765" cy="290" r="9" fill="#10b981"/>
+  <text x="765" y="294" class="msg-num">4</text>
+  <text x="630" y="294" class="msg-text">200 OK (KeycloakAccessToken)</text>
+
+  <!-- Message 5: Feign Client -> Keycloak Admin API -->
+  <line x1="560" y1="340" x2="780" y2="340" stroke="#3b82f6" stroke-width="2" marker-end="url(#seq-arrow)"/>
+  <circle cx="575" cy="330" r="9" fill="#3b82f6"/>
+  <text x="575" y="334" class="msg-num">5</text>
+  <text x="590" y="334" class="msg-text">POST /admin/realms/{realm}/users + Bearer</text>
+
+  <!-- Return 6: Keycloak -> Controller -->
+  <line x1="780" y1="380" x2="330" y2="380" stroke="#10b981" stroke-width="2" stroke-dasharray="3" marker-end="url(#seq-ret)"/>
+  <circle cx="765" cy="370" r="9" fill="#10b981"/>
+  <text x="765" y="374" class="msg-num">6</text>
+  <text x="500" y="374" class="msg-text">201 Created</text>
+
+  <!-- Return 7: Controller -> Client -->
+  <line x1="330" y1="420" x2="120" y2="420" stroke="#10b981" stroke-width="2" stroke-dasharray="3" marker-end="url(#seq-ret)"/>
+  <circle cx="315" cy="410" r="9" fill="#10b981"/>
+  <text x="315" y="414" class="msg-num">7</text>
+  <text x="170" y="414" class="msg-text">HTTP 200 OK Response</text>
+</svg>
