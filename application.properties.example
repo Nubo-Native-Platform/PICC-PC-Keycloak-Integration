@@ -1,0 +1,57 @@
+# ==============================================================================
+# PICC-PC-Keycloak-Integration - Configuration Reference / Example
+# ==============================================================================
+# Copy this file to application-standalone.properties or set the corresponding
+# environment variables when running in Docker/Kubernetes/local environments.
+
+# ------------------------------------------------------------------------------
+# Application Core Settings
+# ------------------------------------------------------------------------------
+spring.application.name=PICC-PC-Keycloak-Integration
+server.port=${PORT:8080}
+spring.profiles.active=standalone
+
+# Set to false to run without external Spring Cloud Config Server
+spring.cloud.config.enabled=${SPRING_CLOUD_CONFIG_ENABLED:false}
+
+# If using Spring Cloud Config Server, configure the import URL:
+# spring.config.import=optional:configserver:http://localhost:8888/
+
+# -------------------------------------------------------------------
+# Keycloak IAM Connection Configuration
+# -------------------------------------------------------------------
+# Base endpoint for Keycloak Admin and Token APIs
+keycloak.url=${KEYCLOAK_URL:http://localhost:8081}
+
+# Master administrative realm
+keycloak.master.realm=${KEYCLOAK_MASTER_REALM:master}
+
+# Service account credentials for Feign Interceptor authentication
+keycloak.client_id=${KEYCLOAK_CLIENT_ID:admin-cli}
+keycloak.client_secret=${KEYCLOAK_CLIENT_SECRET:}
+
+# OAuth2 Grant Types
+keycloak.grant_type_client_credentials=${KEYCLOAK_GRANT_TYPE_CLIENT_CREDENTIALS:client_credentials}
+keycloak.grant_type_refresh_token=${KEYCLOAK_GRANT_TYPE_REFRESH_TOKEN:refresh_token}
+
+# -------------------------------------------------------------------
+# Cache Configuration
+# -------------------------------------------------------------------
+spring.cache.type=concurrent
+spring.cache.cache-names=accessToken
+
+# -------------------------------------------------------------------
+# OpenAPI / Swagger UI
+# -------------------------------------------------------------------
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+springdoc.swagger-ui.enabled=true
+springdoc.swagger-ui.operations-sorter=alpha
+springdoc.swagger-ui.tags-sorter=alpha
+springdoc.swagger-ui.try-it-out-enabled=true
+
+# -------------------------------------------------------------------
+# Logging Configuration
+# -------------------------------------------------------------------
+logging.level.root=INFO
+logging.level.com.nnp.keycloak=DEBUG
