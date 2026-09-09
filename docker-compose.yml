@@ -1,0 +1,46 @@
+services:
+  # Keycloak IAM Server (Development Mode)
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.5
+    container_name: keycloak-server
+    command: start-dev --http-port 8080 --health-enabled=true
+    restart: unless-stopped
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
+    ports:
+      - "8081:8080" # Keycloak Admin Console (http://localhost:8081)
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    healthcheck:
+      test: ["CMD-SHELL", "exec 3<>/dev/tcp/127.0.0.1/8080; echo -e 'GET /health/ready HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; grep -q '200 OK' <&3"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Keycloak Integration Service Application
+  keycloak-integration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: picc-pc-keycloak-integration:latest
+    container_name: keycloak-integration-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      PORT: ${PORT:-8080}
+      SPRING_CLOUD_CONFIG_ENABLED: ${SPRING_CLOUD_CONFIG_ENABLED:-false}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://keycloak:8080}
+      KEYCLOAK_MASTER_REALM: ${KEYCLOAK_MASTER_REALM:-master}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-admin-cli}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-}
+      KEYCLOAK_GRANT_TYPE_CLIENT_CREDENTIALS: ${KEYCLOAK_GRANT_TYPE_CLIENT_CREDENTIALS:-client_credentials}
+      KEYCLOAK_GRANT_TYPE_REFRESH_TOKEN: ${KEYCLOAK_GRANT_TYPE_REFRESH_TOKEN:-refresh_token}
+    depends_on:
+      keycloak:
+        condition: service_started
+
+volumes:
+  keycloak_data:
